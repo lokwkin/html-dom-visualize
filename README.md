@@ -5,16 +5,13 @@ Useful when analyzing elements composition of HTML documents or developing tools
 
 ## Using in Command line
 ```
-pip install -r requirements.txt
-# OR
-python main.py -f ./webpage.html
 ```
 
-```
+```sh
 options:
   -h, --help            show this help message and exit
-  -u URL, --url URL     URL of the HTML page to analyze
   -f FILE, --file FILE  Path to local HTML file to analyze
+  -u URL, --url URL     URL of the HTML page to analyze
   -b BRANCH, --branch BRANCH
                         Element tags that if included, their
                         ancestors and all their descendants
@@ -30,6 +27,10 @@ options:
                         will be masked.
 
 example:
-python main.py -u https://google.com -b a -b button -m a
+# only include branches that contains <button> / <input>
+# mask out children inside <button> and <a>
+python main.py -f ./webpage.html -b button -b input -m a -m b 
 
+# load from URL
+python main.py -u https://google.com
 ```
