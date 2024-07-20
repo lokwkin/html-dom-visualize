@@ -8,20 +8,73 @@ from typing import Callable, Optional
 
 
 def html_dom_visualize(
-    html: str,
     *,
+    html: Optional[str] = None,
+    url: Optional[str] = None,
+    file_path: Optional[str] = None,
     branch_filter: Optional[Callable[[Tag], bool]] = None,
     should_mask: Optional[Callable[[Tag], bool]] = None,
     mask_fn: Optional[Callable[[Tag], str]] = None,
 ):
     """
-    Visualizes the DOM structure of the given HTML string.
+    Visualize the DOM structure of an HTML document as a treemap.
 
-    Args:
-    html (str): The HTML string to visualize.
+    This function takes an HTML string, processes it according to specified
+    filters and masking rules, and generates a treemap visualization of the
+    resulting DOM structure.
 
-    This function parses the HTML and create a visual representation.
+    Parameters:
+    -----------
+    html : str
+        The HTML content to visualize.
+
+    url : Optional[str], default=None
+        The URL of the HTML page (if applicable). Not used in the current
+        implementation but could be used for reference or additional
+        functionality.
+
+    file_path : Optional[str], default=None
+        The file path of the HTML file (if applicable). Not used in the
+        current implementation but could be used for reference or additional
+        functionality.
+
+    branch_filter : Optional[Callable[[Tag], bool]], default=None
+        A function that takes a BeautifulSoup Tag object and returns a boolean.
+        If provided, only branches (and their descendants) for which this
+        function returns True will be included in the visualization.
+
+    should_mask : Optional[Callable[[Tag], bool]], default=None
+        A function that takes a BeautifulSoup Tag object and returns a boolean.
+        If provided, elements for which this function returns True will be
+        masked in the output graph. Their children will be removed, and only
+        their inner text (or the result of mask_fn) will be preserved.
+
+    mask_fn : Optional[Callable[[Tag], str]], default=None
+        A function that takes a BeautifulSoup Tag object and returns a string.
+        This function is used to determine the text that should replace masked
+        elements.
+        If not provided, by default it would mask by the inner html of the
+        element, except that it handles 'a' tags specially by including their
+        'href' attribute.
+
+    Returns:
+    --------
+    None
     """
+
+    if not html:
+        if url:
+            response = requests.get(url)
+            response.raise_for_status()
+            html = response.text
+        elif file_path:
+            with open(file_path, "r", encoding="utf-8") as file:
+                html = file.read()
+
+    if not html:
+        print("Error: No HTML provided")
+        return
+
     soup = BeautifulSoup(html, "html.parser")
 
     if branch_filter is not None:
@@ -222,20 +275,9 @@ def main():
         parser.print_help()
         sys.exit(1)
 
-    content = None
-    if args.url:
-        response = requests.get(args.url)
-        response.raise_for_status()
-        content = response.text
-    elif args.file:
-        with open(args.file, "r", encoding="utf-8") as file:
-            content = file.read()
-
-    if not content:
-        print("Error: No content found.")
-
     html_dom_visualize(
-        content,
+        url=args.url,
+        file_path=args.file,
         branch_filter=(
             lambda node: node.name in args.branch) if args.branch else None,
         should_mask=(
@@ -245,4 +287,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

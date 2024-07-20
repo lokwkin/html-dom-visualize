@@ -1,10 +1,11 @@
 [tool.poetry]
 name = "html-dom-visualize"
-version = "0.1.0"
+version = "0.1.4"
 description = "A simple HTML to Tree Diagram library that outputs HTML DOM as image for visualization."
 authors = ["lokwkin <lokwkin@gmail.com>"]
 license = "MIT License"
 readme = "README.md"
+packages = [{include = "html_dom_visualize", from = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.12"
