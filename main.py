@@ -2,7 +2,6 @@ import uuid
 import requests
 import argparse
 import sys
-import igraph as ig
 from bs4 import BeautifulSoup, Tag
 import plotly.graph_objects as go
 from collections import defaultdict
@@ -12,9 +11,9 @@ from typing import Callable, Optional
 def html_visualize(
     html: str,
     *,
-    branch_filter: Optional[Callable[[Tag], bool]],
-    should_mask: Optional[Callable[[Tag], bool]],
-    mask_fn: Optional[Callable[[Tag], str]],
+    branch_filter: Optional[Callable[[Tag], bool]] = None,
+    should_mask: Optional[Callable[[Tag], bool]] = None,
+    mask_fn: Optional[Callable[[Tag], str]] = None,
 ):
     """
     Visualizes the DOM structure of the given HTML string.
@@ -26,18 +25,24 @@ def html_visualize(
     """
     soup = BeautifulSoup(html, "html.parser")
 
-    tree = soup.html
-
     # Assign unique IDs to each element in DOM
-    for tag in soup.html.find_all():
+    for tag in soup.find_all():
         if "element_id" not in tag.attrs:
             tag["element_id"] = _generate_unique_id()
 
-    _filter_branches(tree, branch_filter)
+    if branch_filter is not None:
+        _filter_branches(soup, branch_filter)
 
-    _mask_elements(tree, should_mask, mask_fn)
+    if should_mask is not None:
 
-    figure = _plot_dom_treemap(tree)
+        def default_mask_fn(node: Tag):
+            if node.name == "a":
+                return node.get("href", "N/A")
+            return node.getText(" ", True)
+
+        _mask_elements(soup, should_mask, mask_fn or default_mask_fn)
+
+    figure = _plot_dom_treemap(soup)
     figure.show()
 
 
@@ -219,20 +224,12 @@ def main():
     if not content:
         print("Error: No content found.")
 
-    def mask_fn(node: Tag):
-        if node.name == "a":
-            return node.get("href", "N/A")
-        return node.getText(" ", True)
-
-    print(args.branch)
-
     html_visualize(
         content,
         branch_filter=(
             lambda node: node.name in args.branch) if args.branch else None,
         should_mask=(
             lambda node: node.name in args.mask) if args.mask else None,
-        mask_fn=mask_fn,
     )
 
 
