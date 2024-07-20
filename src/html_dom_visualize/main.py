@@ -7,7 +7,7 @@ from collections import defaultdict
 from typing import Callable, Optional
 
 
-def html_visualize(
+def html_dom_visualize(
     html: str,
     *,
     branch_filter: Optional[Callable[[Tag], bool]] = None,
@@ -234,7 +234,7 @@ def main():
     if not content:
         print("Error: No content found.")
 
-    html_visualize(
+    html_dom_visualize(
         content,
         branch_filter=(
             lambda node: node.name in args.branch) if args.branch else None,

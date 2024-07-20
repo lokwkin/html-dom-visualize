@@ -1,7 +1,12 @@
 # html-dom-visualize
-A simple HTML to Diagram library that outputs DOM tree as image for visualization. Supports custom elements filtering and masking.
+A simple HTML to Tree Diagram library that outputs HTML DOM as image for visualization. Supports custom elements filtering and masking.
 
 Useful when analyzing elements composition of HTML documents or developing tools that manipulates HTML DOM structures.
+
+## Install
+```
+pip install html-dom-visualize
+```
 
 ## Using in Command line
 ```
@@ -29,8 +34,8 @@ options:
 example:
 # only include branches that contains <button> / <input>
 # mask out children inside <button> and <a>
-python main.py -f ./webpage.html -b button -b input -m a -m b 
+html-dom-visualize -f ./webpage.html -b button -b input -m a -m b 
 
 # load from URL
-python main.py -u https://google.com
+html-dom-visualize -u https://google.com
 ```

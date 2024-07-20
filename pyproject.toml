@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "html-dom-visualize"
+version = "0.1.0"
+description = "A simple HTML to Tree Diagram library that outputs HTML DOM as image for visualization."
+authors = ["lokwkin <lokwkin@gmail.com>"]
+license = "MIT License"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+beautifulsoup4 = "^4.12.3"
+plotly = "5.22.0"
+requests = "^2.32.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.poetry.scripts]
+html-dom-visualize = "html_dom_visualize.main:main"
