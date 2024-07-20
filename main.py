@@ -1,4 +1,3 @@
-import uuid
 import requests
 import argparse
 import sys
@@ -25,11 +24,6 @@ def html_visualize(
     """
     soup = BeautifulSoup(html, "html.parser")
 
-    # Assign unique IDs to each element in DOM
-    for tag in soup.find_all():
-        if "element_id" not in tag.attrs:
-            tag["element_id"] = _generate_unique_id()
-
     if branch_filter is not None:
         _filter_branches(soup, branch_filter)
 
@@ -37,8 +31,8 @@ def html_visualize(
 
         def default_mask_fn(node: Tag):
             if node.name == "a":
-                return node.get("href", "N/A")
-            return node.getText(" ", True)
+                return f"href: {node.get("href", "N/A")}"
+            return str(node)
 
         _mask_elements(soup, should_mask, mask_fn or default_mask_fn)
 
@@ -145,10 +139,10 @@ def _plot_dom_treemap(node: Tag):
         tree_data["ids"].append(node_id)
         tree_data["labels"].append(element.name)
         tree_data["parents"].append(parent_id)
-        tree_data["hover_text"].append(
+        tree_data["hover_text"].append(_add_line_breaks(
             element.attrs["el-mask"]
             if "el-mask" in element.attrs
-            else element.name
+            else str(element.attrs))
         )
         for child in element.children:
             if child.name:
@@ -175,8 +169,24 @@ def _plot_dom_treemap(node: Tag):
     return fig
 
 
-def _generate_unique_id() -> str:
-    return f"{uuid.uuid4().hex[:8]}"
+def _add_line_breaks(text, char_limit=120):
+    result = []
+    current_line = []
+    current_length = 0
+
+    for word in text.split():
+        if current_length + len(word) > char_limit:
+            result.append(' '.join(current_line) + '<br />')
+            current_line = [word]
+            current_length = len(word)
+        else:
+            current_line.append(word)
+            current_length += len(word) + 1  # +1 for the space
+
+    if current_line:
+        result.append(' '.join(current_line))
+
+    return ' '.join(result)
 
 
 def main():
@@ -235,3 +245,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
