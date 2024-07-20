@@ -1,11 +1,14 @@
 [tool.poetry]
 name = "html-dom-visualize"
-version = "0.2.1"
+version = "0.2.3"
 description = "A simple HTML to Tree Diagram library that outputs HTML DOM as image for visualization."
 authors = ["lokwkin <lokwkin@gmail.com>"]
-license = "MIT License"
+license = "MIT"
 readme = "README.md"
 packages = [{include = "html_dom_visualize", from = "src"}]
+homepage = "https://github.com/lokwkin/html-dom-visualize"
+repository = "https://github.com/lokwkin/html-dom-visualize"
+keywords = ["dom", "html", "visualization", "tree", "diagram", "html-dom-visualize"]
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -20,6 +23,3 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 html-dom-visualize = "html_dom_visualize.main:main"
-
-[project.urls]
-"Homepage" = "https://github.com/lokwkin/html-dom-visualize"
