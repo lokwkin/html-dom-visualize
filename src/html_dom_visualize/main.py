@@ -3,6 +3,7 @@ import argparse
 import sys
 from bs4 import BeautifulSoup, Tag
 import plotly.graph_objects as go
+import plotly.io as pio
 from collections import defaultdict
 from typing import Callable, Optional
 
@@ -15,6 +16,8 @@ def html_dom_visualize(
     branch_filter: Optional[Callable[[Tag], bool]] = None,
     should_mask: Optional[Callable[[Tag], bool]] = None,
     mask_fn: Optional[Callable[[Tag], str]] = None,
+    output_path: Optional[str] = None,
+    show: Optional[bool] = False
 ):
     """
     Visualize the DOM structure of an HTML document as a treemap.
@@ -56,6 +59,14 @@ def html_dom_visualize(
         If not provided, by default it would mask by the inner html of the
         element, except that it handles 'a' tags specially by including their
         'href' attribute.
+    
+    output_path : Optional[str], default=None
+        The file path to save the visualization as an image. If not provided,
+        the visualization will not be saved as an image.
+
+    show : Optional[bool], default=False
+        Whether to display the visualization in the browser. If True, the
+        visualization will be displayed.
 
     Returns:
     --------
@@ -90,7 +101,12 @@ def html_dom_visualize(
         _mask_elements(soup, should_mask, mask_fn or default_mask_fn)
 
     figure = _plot_dom_treemap(soup)
-    figure.show()
+    
+    if output_path:
+        pio.write_image(figure, output_path)
+
+    if show:
+        figure.show()
 
 
 def _filter_branches(
@@ -267,6 +283,18 @@ def main():
         "Multiple tags can be specified. "
         "If not specified, no tags will be masked.",
     )
+    parser.add_argument(
+        "-o",
+        "--output",
+        help="Output file path for the visualization. If not provided, the "
+        "visualization will be displayed in the browser.",
+    )
+    parser.add_argument(
+        "--show",
+        action="store_true",
+        help="Display the visualization in the browser. If provided, the "
+        "visualization will be displayed.",
+    )
 
     args = parser.parse_args()
 
@@ -282,6 +310,8 @@ def main():
             lambda node: node.name in args.branch) if args.branch else None,
         should_mask=(
             lambda node: node.name in args.mask) if args.mask else None,
+        output_path=args.output,
+        show=args.show
     )
 
 
