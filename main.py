@@ -170,6 +170,101 @@ def _plot_dom_treemap(node: Tag):
     return fig
 
 
+def _plot_dom_tree(node: Tag):
+    """
+    Creates a tree visualization of the DOM tree using igraph, with the root
+    at the top.
+
+    Args:
+    node (Tag): The root node of the DOM tree.
+
+    Returns:
+    Figure: A Plotly Figure object representing the DOM tree as a tree diagram.
+
+    This function traverses the DOM tree and creates a tree visualization
+    using igraph, showing the structure and relationships of the HTML elements.
+    """
+    def traverse(element: Tag, parent_id, graph, vertex_labels, hover_texts):
+        node_id = len(vertex_labels)
+        vertex_labels.append(element.name)
+        hover_texts.append(
+            element.attrs["el-mask"]
+            if "el-mask" in element.attrs
+            else element.name
+        )
+        graph.add_vertex(name=str(node_id))
+        if parent_id is not None:
+            graph.add_edge(str(parent_id), str(node_id))
+
+        for child in element.children:
+            if isinstance(child, Tag):
+                traverse(child, node_id, graph, vertex_labels, hover_texts)
+
+    g = ig.Graph(directed=True)
+    vertex_labels = []
+    hover_texts = []
+    traverse(node, None, g, vertex_labels, hover_texts)
+
+    layout = g.layout_reingold_tilford(root=[0], mode="out")
+
+    # Flip the y-coordinates to put the root at the top
+    layout = [(x, -y) for x, y in layout]
+
+    edge_x = []
+    edge_y = []
+    for edge in g.es:
+        source, target = edge.tuple
+        x0, y0 = layout[source]
+        x1, y1 = layout[target]
+        edge_x.extend([x0, x1, None])
+        edge_y.extend([y0, y1, None])
+
+    edge_trace = go.Scatter(
+        x=edge_x, y=edge_y,
+        line=dict(width=0.5, color='#888'),
+        hoverinfo='none',
+        mode='lines')
+
+    node_x = [layout[v][0] for v in range(len(g.vs))]
+    node_y = [layout[v][1] for v in range(len(g.vs))]
+
+    node_trace = go.Scatter(
+        x=node_x, y=node_y,
+        mode='markers+text',
+        hoverinfo='text',
+        textposition="top center",
+        marker=dict(
+            showscale=False,
+            colorscale='YlGnBu',
+            size=10,
+            color=[],
+            line_width=2))
+
+    node_trace.text = vertex_labels
+    node_trace.hovertext = hover_texts
+    node_trace.marker.color = [g.degree()[v] for v in range(len(g.vs))]
+
+    fig = go.Figure(data=[edge_trace, node_trace],
+                    layout=go.Layout(
+                        title='DOM Tree Visualization',
+                        titlefont_size=16,
+                        showlegend=False,
+                        hovermode='closest',
+                        margin=dict(b=20, l=5, r=5, t=40),
+                        annotations=[dict(
+                            text="",
+                            showarrow=False,
+                            xref="paper", yref="paper",
+                            x=0.005, y=-0.002)],
+                        xaxis=dict(showgrid=False, zeroline=False,
+                                   showticklabels=False),
+                        yaxis=dict(showgrid=False,
+                                   zeroline=False,
+                                   showticklabels=False))
+                    )
+    return fig
+
+
 def _generate_unique_id() -> str:
     return f"{uuid.uuid4().hex[:8]}"
 
