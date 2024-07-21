@@ -5,7 +5,7 @@ description = "A simple HTML to Tree Diagram library that outputs HTML DOM as im
 authors = ["lokwkin <lokwkin@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "html_dom_visualize", from = "src"}]
+packages = [{include = "html_dom_visualize"}]
 homepage = "https://github.com/lokwkin/html-dom-visualize"
 repository = "https://github.com/lokwkin/html-dom-visualize"
 keywords = ["dom", "html", "visualization", "tree", "diagram", "html-dom-visualize"]
