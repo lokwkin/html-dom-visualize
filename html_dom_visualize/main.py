@@ -1,6 +1,6 @@
 import argparse
 import sys
-import visualizer
+from html_dom_visualize.visualizer import html_dom_visualize
 
 
 def main():
@@ -48,7 +48,7 @@ def main():
         parser.print_help()
         sys.exit(1)
 
-    visualizer.html_dom_visualize(
+    html_dom_visualize(
         url=args.url,
         file_path=args.file,
         branch_filter=(
