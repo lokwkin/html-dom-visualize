@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "html-dom-visualize"
-version = "0.2.6"
+version = "0.2.7"
 description = "A simple HTML to Tree Diagram library that outputs HTML DOM as image for visualization."
 authors = ["lokwkin <lokwkin@gmail.com>"]
 license = "MIT"

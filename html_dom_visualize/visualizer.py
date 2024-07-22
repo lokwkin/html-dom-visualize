@@ -93,7 +93,7 @@ def html_dom_visualize(
 
         def default_mask_fn(node: Tag):
             if node.name == "a":
-                return f"href: {node.get("href", "N/A")}"
+                return f"href: {node.get('href', 'N/A')}"
             return str(node)
 
         _mask_elements(soup, should_mask, mask_fn or default_mask_fn)
